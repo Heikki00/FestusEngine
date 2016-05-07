@@ -1,0 +1,493 @@
+
+Foo.vs 2 143
+FS.fs 143 462
+TestVS.vs 462 987
+TestFS.fs 987 3034
+BasicFS.fs 3034 3253
+PosTexNorm.vs 3253 3587
+ForwardAmbient.fs 3587 3864
+ForwardDirectional.fs 3864 5916
+ShowNormals.gs 5916 6735
+Tangent.vs 6735 7382
+TestGS.gs 7382 8389
+$
+#version 430
+
+in vec3 position;
+
+uniform mat4 MVP;
+
+uniform float f1;
+
+
+
+void main(){
+        gl_Position = MVP * vec4(position, 1 + f1);
+}
+
+#version 430
+
+
+
+out vec4 color;
+
+uniform float colorMult;
+
+
+
+struct AlphaInfo{
+float base;
+float mul;
+
+};
+
+struct ColorInfo{
+
+float r;
+
+float g;
+
+float b;
+
+AlphaInfo a;       
+
+};
+
+uniform ColorInfo colInf;
+
+
+void main(){
+        color = vec4(colInf.r, colInf.g, colInf.b, colInf.a.base * colInf.a.mul) * colorMult;
+}
+
+#version 430
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec2 texCoord;
+layout(location = 2) in vec3 normal;
+layout(location = 3) in vec3 tanget;
+
+
+out Vertex{
+vec3 worldPos; 
+vec2 coord; 
+mat3 tbnMatrix;
+} vertex;
+
+
+
+
+
+uniform mat4 MVP;
+uniform mat4 model;
+
+void main(){
+
+gl_Position = MVP * vec4(position, 1);
+
+
+vec3 n = normalize((model * vec4(normal, 0.0)).xyz);
+vec3 t = normalize((model * vec4(tanget, 0.0)).xyz);
+
+
+vec3 biTanget = cross(t, n);
+        
+
+vertex.tbnMatrix = mat3(t, biTanget, n);
+
+}
+
+
+
+#version 430
+
+
+
+
+
+struct BaseLight{
+    vec3 color;
+    float intensity;
+};
+
+
+struct DirectionalLight{
+    BaseLight base;
+    vec3 direction;
+};
+
+
+vec3 calcLight(BaseLight base, vec3 direction, vec3 normal, vec3 worldPos, vec3 eyePos, float specularIntensity, float specularPower){
+        
+        float diffuseFactor = dot(normal, -direction);
+        vec3 diffuseColor;
+        
+        vec3 specularColor;
+        
+        if(diffuseFactor > 0){
+                diffuseColor = base.color * base.intensity * diffuseFactor;
+                
+                vec3 directionToEye = normalize(eyePos - worldPos);
+                //vec3 reflectDirection = normalize(reflect(direction, normal));
+                vec3 halfDirection = normalize(directionToEye - direction);
+                
+                float specularFactor = dot(halfDirection, normal);
+                //float specularFactor = dot(directionToEye, reflectDirection);
+                specularFactor = pow(specularFactor, specularPower);
+                
+        
+                if(specularFactor > 0){
+                        specularColor = base.color * specularIntensity * specularFactor;
+                        //return vec4(1,0,0,1);
+                }
+        
+        
+        
+        }
+
+        return diffuseColor + specularColor;
+
+}
+
+vec3 calcDirectionalLight(DirectionalLight dir, vec3 normal, vec3 worldPos, vec3 eyePos, float specIntensity, float specPower){
+        return calcLight(dir.base, dir.direction, normal, worldPos, eyePos, specIntensity, specPower);
+}
+
+
+
+in Vertex{
+vec3 worldPos; 
+vec2 coord; 
+mat3 tbnMatrix;
+} vertex;
+
+
+in mat3 tbnMatrix;
+out vec4 color;
+
+uniform sampler2D M_diffuse;
+uniform sampler2D M_normal;
+
+
+uniform DirectionalLight RL_activeLight;
+
+uniform vec3 eyepos;
+
+void main(){ 
+   
+//vec3 n = normalize(vertex.tbnMatrix * vec3(0,1,0))); 
+
+
+
+ //color = vec4(texture(M_diffuse, vertex.coord).xyz * calcDirectionalLight(RL_activeLight, n, vertex.worldPos, eyepos, 10.f, 200.f), 1);
+
+        color = vec4(0.0,0.0,0.0, 1.0);
+
+
+        }  
+
+
+#version 430
+
+in vec2 pos2;
+in vec2 coord0;
+
+out vec4 color;
+
+uniform sampler2D M_diffuse;
+
+void main(){ 
+       
+         color = texture(M_diffuse, coord0); 
+       
+         //color = vec4(coord0, 0, 1);
+      }  
+
+
+#version 430
+
+layout(location = 0) in vec3 pos;
+layout(location = 1) in vec2 coord;
+layout(location = 2) in vec3 norm;
+
+out vec3 worldPos0;
+out vec2 coord0;
+out vec3 norm0;
+
+uniform mat4 MVP;
+uniform mat4 model;
+void main(){
+
+gl_Position = MVP * vec4(pos, 1);
+coord0 = coord;
+norm0 = norm;
+worldPos0 = vec3(model * vec4(pos, 1));
+
+}
+
+#version 430
+
+in Vertex{
+vec3 worldPos; 
+vec2 coord; 
+mat3 tbnMatrix;
+} vertex;
+
+
+out vec4 finalColor;
+
+uniform vec3 RL_ambient;
+uniform sampler2D M_diffuse;
+
+void main(){
+
+         finalColor = vec4(texture(M_diffuse, vertex.coord).xyz * RL_ambient, 1);   
+             
+    }#version 430
+
+
+
+
+
+struct BaseLight{
+    vec3 color;
+    float intensity;
+};
+
+
+struct DirectionalLight{
+    BaseLight base;
+    vec3 direction;
+};
+
+
+vec3 calcLight(BaseLight base, vec3 direction, vec3 normal, vec3 worldPos, vec3 eyePos, float specularIntensity, float specularPower){
+        
+        float diffuseFactor = dot(normal, -direction);
+        vec3 diffuseColor;
+        
+        vec3 specularColor;
+        
+        if(diffuseFactor > 0){
+                diffuseColor = base.color * base.intensity * diffuseFactor;
+                         
+
+
+                vec3 directionToEye = normalize(eyePos - worldPos);
+                vec3 reflectDirection = normalize(reflect(direction, normal));
+               
+                
+                vec3 halfVector = normalize(directionToEye - direction);
+
+                float specularFactor = dot(normal, halfVector);
+                specularFactor = pow(specularFactor, specularPower);
+                
+        
+                if(specularFactor > 0){
+                        specularColor = base.color * specularIntensity * specularFactor;
+                       
+                }
+        
+        
+        
+        }
+
+        return diffuseColor + specularColor;
+
+}
+
+vec3 calcDirectionalLight(DirectionalLight dir, vec3 normal, vec3 worldPos, vec3 eyePos, float specIntensity, float specPower){
+        return calcLight(dir.base, dir.direction, normal, worldPos, eyePos, specIntensity, specPower);
+}
+
+
+
+in Vertex{
+vec3 worldPos; 
+vec2 coord; 
+mat3 tbnMatrix;
+} vertex;
+
+uniform sampler2D M_diffuse;
+uniform sampler2D M_normal;
+
+uniform float M_specularIntensity;
+uniform float M_specularPower;
+
+uniform DirectionalLight RL_activeLight;
+uniform vec3 eyepos;
+
+out vec4 finalColor;
+
+void main(){
+        vec3 n = normalize(vertex.tbnMatrix * (255.0/128.0 * texture(M_normal, vertex.coord).xyz - 1)); 
+
+        vec3 color = texture(M_diffuse, vertex.coord).xyz;  
+        
+        finalColor = vec4(color * calcDirectionalLight(RL_activeLight, n, vertex.worldPos, eyepos, 1.f, 500.f), 1);
+}
+
+
+
+
+
+
+#version 430
+ 
+layout(triangles) in;
+layout (line_strip, max_vertices=2) out;
+
+in vec3 worldPos0[3];
+in vec2 coord0[3];
+in vec3 norm0[3];
+
+out vec3 worldPos00;
+out vec2 coord00;
+out vec3 norm00;
+ 
+uniform mat4 perspective;
+
+ void main()
+{
+  
+     // copy attributes
+    vec3 avgNorm = (norm0[0] + norm0[1] + norm0[2]) * 0.33333333;
+    vec3 avgWorldPos = (worldPos0[0] + worldPos0[1] + worldPos0[2]) * 0.33333333;
+    gl_Position = (gl_in[0].gl_Position + gl_in[1].gl_Position + gl_in[2].gl_Position) * 0.3333333;
+    worldPos00 = avgWorldPos;
+    coord00 = coord0[0];
+    norm00 = norm0[0];
+   
+ 
+    // done with the vertex
+    EmitVertex();
+
+    
+   gl_Position =  perspective * vec4(avgWorldPos + avgNorm, 1); 
+
+ worldPos00 = avgWorldPos;
+    coord00 = coord0[0];
+    norm00 = norm0[0];
+        
+EmitVertex();
+
+  
+}#version 430
+
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec2 texCoord;
+layout(location = 2) in vec3 normal;
+layout(location = 3) in vec3 tanget;
+
+out Vertex{
+vec3 worldPos; 
+vec2 coord; 
+mat3 tbnMatrix;
+} vertex;
+
+
+
+
+
+
+uniform mat4 MVP;
+uniform mat4 model;
+
+void main(){
+
+vertex.worldPos = vec3(model * vec4(position, 1));
+vertex.coord = texCoord;
+
+gl_Position = MVP * vec4(position, 1);
+
+
+vec3 n = normalize((model * vec4(normal, 0.0)).xyz);
+vec3 t = normalize((model * vec4(tanget, 0.0)).xyz);
+        
+t = normalize(t - (dot(t,n)) * n);
+
+vec3 biTanget =cross(n, t);
+        
+
+vertex.tbnMatrix = mat3(t, biTanget, n);
+
+
+
+}
+
+#version 430
+
+
+layout(triangles) in;
+
+layout(line_strip, max_vertices = 18) out;
+
+uniform mat4 MVP;
+
+
+
+in mat3 tbnMatrix[];
+
+
+
+out vec3 vertcolor;
+
+void main()
+{
+float len = 0.3;
+
+  int i;
+  for(i=0; i < 3; i++)
+  {
+    vec3 P = gl_in[i].gl_Position.xyz;
+
+        
+  
+
+    //Normal
+    vertcolor = vec3(0,1,0);
+
+    gl_Position = MVP * vec4(P, 1.0);
+    
+    EmitVertex();
+    
+    gl_Position = MVP * vec4(P + tbnMatrix[i][2] * len, 1.0);
+    vertcolor = vec3(0,1,0);
+
+    EmitVertex();
+  
+EndPrimitive();  
+
+      //Tanget
+    vertcolor = vec3(0,0,1);
+
+    gl_Position = MVP * vec4(P, 1.0);
+    
+    EmitVertex();
+    
+    gl_Position = MVP * vec4(P + tbnMatrix[i][0] * len, 1.0);
+    vertcolor = vec3(0,0,1);
+
+    EmitVertex();
+
+    
+EndPrimitive();
+
+      //Bitanget
+    vertcolor = vec3(1,0,0);
+
+    gl_Position = MVP * vec4(P, 1.0);
+    
+    EmitVertex();
+    
+    gl_Position = MVP * vec4(P + tbnMatrix[i][1] * len, 1.0);
+    vertcolor = vec3(1,0,0);
+
+    EmitVertex();
+    
+
+
+EndPrimitive();
+
+
+  }
+}
