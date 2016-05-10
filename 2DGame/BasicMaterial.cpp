@@ -30,12 +30,13 @@ bool BasicMaterial::render(U32 renderType, GameObject* go)
 	
 	if (renderType == RenderLayerID<GameRenderLayer>::getID()) {
 	
-		shader->bind();
-
-		
-
-		shader->updateUniforms(this, go->getTransform());
 	
+		shader->bind();
+	
+		
+		
+		shader->updateUniforms(this, go->getTransform());
+		
 		return true;
 	}
 	return false;

@@ -10,11 +10,36 @@ FreeMove::FreeMove() : GameComponent()
 
 void FreeMove::update()
 {
+
+
+
 	
+	Vector2 motion = input->getMouseMotion();
+	motion.y *= -1;
+
+	float sensFactor = 80.f;
 	
+	motion /= sensFactor;
+
+
+
+	float dDot = getTransform().getForward().dot(Vector3::WORLD_DOWN);
+	float uDot = getTransform().getForward().dot(Vector3::WORLD_UP);
+
+
+	if (dDot - motion.y > 0.9) {
+		motion.y = -(0.9 - dDot);
+	}
+
+	if (uDot + motion.y > 0.9) {
+		motion.y = 0.9 - uDot;
+	}
+
+	getTransform().rotate(Quaternion(Vector3::WORLD_UP, motion.x));
+	getTransform().rotate(Quaternion(getTransform().getWorldLeft(), motion.y));
+
 	
-	
-	F32 speed = 0.5f;
+	F32 speed = 0.005f;
 
 
 	if (input->isKeyActive(SDLK_LSHIFT)) {
@@ -26,57 +51,22 @@ void FreeMove::update()
 	}
 
 
-	F32 maxSpeed = 0.5f;
-
 
 	if (input->isKeyActive(SDLK_w)) {
-		//FIX IMPLEMENT LOOKUP BY TYPE ID
-		Vector2 mom = static_cast<TilePhysics*>(getParent()->getComponentByIndex(0))->getAcceleration() + (Vector2(0, 1) * speed);
-
-
-		if (mom.lenght2() > maxSpeed * maxSpeed) {
-			mom.normalize();
-			mom *= maxSpeed;
-		}
-
-		static_cast<TilePhysics*>(getParent()->getComponentByIndex(0))->setMomentum(mom);
+		getParent()->getTransform().translate(getParent()->getTransform().getWorldForward() * speed);
 
 	}
 
 	if (input->isKeyActive(SDLK_s)) {
-		Vector2 mom = static_cast<TilePhysics*>(getParent()->getComponentByIndex(0))->getAcceleration() + (Vector2(0, -1) * speed);
-
-
-		if (mom.lenght2() > maxSpeed * maxSpeed) {
-			mom.normalize();
-			mom *= maxSpeed;
-		}
-
-		static_cast<TilePhysics*>(getParent()->getComponentByIndex(0))->setMomentum(mom);
+		getParent()->getTransform().translate(getParent()->getTransform().getWorldBack() * speed);
 	}
 
 	if (input->isKeyActive(SDLK_a)) {
-		Vector2 mom = static_cast<TilePhysics*>(getParent()->getComponentByIndex(0))->getAcceleration() + (Vector2(-1, 0) * speed);
-
-
-		if (mom.lenght2() > maxSpeed * maxSpeed) {
-			mom.normalize();
-			mom *= maxSpeed;
-		}
-
-		static_cast<TilePhysics*>(getParent()->getComponentByIndex(0))->setMomentum(mom);
+		getParent()->getTransform().translate(getParent()->getTransform().getWorldLeft() * speed);
 	}
 	
 	if (input->isKeyActive(SDLK_d)) {
-		Vector2 mom = static_cast<TilePhysics*>(getParent()->getComponentByIndex(0))->getAcceleration() + (Vector2(1, 0) * speed);
-
-
-		if (mom.lenght2() > maxSpeed * maxSpeed) {
-			mom.normalize();
-			mom *= maxSpeed;
-		}
-
-		static_cast<TilePhysics*>(getParent()->getComponentByIndex(0))->setMomentum(mom);
+		getParent()->getTransform().translate(getParent()->getTransform().getWorldRight() * speed);
 	}
 
 

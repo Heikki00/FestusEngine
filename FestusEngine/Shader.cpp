@@ -223,10 +223,11 @@ Shader::~Shader()
  
 void Shader::bind()
 {
-	
+
 	if (glIsProgram(ID)) {
+
 		glUseProgram(ID);
-	
+		
 	}
 	else {
 		Debug::log(ErrorType::SHADER_ERROR, "Tried to use invalid shader program &s\n", filename.c_str());

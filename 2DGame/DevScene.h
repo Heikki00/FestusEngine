@@ -1,7 +1,5 @@
 #pragma once
 #include "Scene.h"
-#include "Arena.h"
-
 
 class DevScene : public Scene {
 public:
@@ -22,8 +20,6 @@ public:
 
 private:
 
-	ColorTile selected;
-	
 
 
 };

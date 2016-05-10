@@ -16,7 +16,7 @@ void GameRenderLayer::render(GameObject* root)
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//glClearDepth(-100.f);
-	glDepthFunc(GL_ALWAYS);
+	glDepthFunc(GL_LESS);
 
 
 	root->renderAll(RenderLayerID<GameRenderLayer>::getID());

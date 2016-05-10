@@ -1,14 +1,14 @@
 
-/Basic2DVS.vs 2 335
-/Basic2DFS.fs 335 526
-/TileFS.fs 526 706
-/TestVS.vs 706 817
-/TestFS.fs 817 902
+/Basic2DVS.vs 2 280
+/Basic2DFS.fs 280 457
+/TileFS.fs 457 637
+/TestVS.vs 637 748
+/TestFS.fs 748 833
 $
 #version 430
 
 layout(location = 0) in vec3 position;
-layout(location = 1) in vec2 texCoord;
+layout(location = 1) in vec3 texCoord;
 
 uniform mat4 MVP;
 uniform mat4 model;
@@ -16,20 +16,19 @@ uniform mat4 model;
 
 
 out Vertex{
-    vec2 pos;
     vec2 coord;
 } vertex;
 
 void main(){
     gl_Position = MVP * vec4(position, 1);
     
-    vertex.pos = (model * vec4(position, 1)).xy;
-    vertex.coord = texCoord;
+   
+    vertex.coord = texCoord.xy;
      
-}#version 430
+}
+#version 430
 
 in Vertex{
-    vec2 pos;
     vec2 coord;
 } vertex;
 

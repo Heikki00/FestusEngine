@@ -51,7 +51,7 @@ Mesh::Mesh(const string& filename, VertexType type)
 
 		vertexSize = sizeof(Vector3);
 		glBufferData(GL_ARRAY_BUFFER, model->mNumVertices * vertexSize, model->mVertices, GL_STATIC_DRAW);
-
+		
 		
 	 break;
 	case PT:
@@ -59,7 +59,7 @@ Mesh::Mesh(const string& filename, VertexType type)
 
 		vertexSize = sizeof(Vector3) * 2;
 		glBufferData(GL_ARRAY_BUFFER, model->mNumVertices * vertexSize, model->mVertices, GL_STATIC_DRAW);
-
+	
 		glBufferSubData(GL_ARRAY_BUFFER, model->mNumVertices * sizeof(Vector3), model->mNumVertices * sizeof(Vector3), model->mTextureCoords[0]);
 		
 		
@@ -113,7 +113,7 @@ Mesh::Mesh(const string& filename, VertexType type)
 		glEnableVertexAttribArray(0);
 
 		if (vertexSize > sizeof(Vector3)) {
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(Vector3) * model->mNumVertices));
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(Vector3) * model->mNumVertices));
 			glEnableVertexAttribArray(1);
 			
 		}
@@ -147,13 +147,14 @@ Mesh::Mesh(const string& filename, VertexType type)
 
 void Mesh::render()
 {
+	glBindVertexArray(vao);
 	
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-
+	
 	glDrawElements(GL_TRIANGLES, numIndicies, GL_UNSIGNED_INT, 0);
 
-	
 	glBindVertexArray(0);
+
 
 }
 

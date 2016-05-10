@@ -21,28 +21,26 @@ void GameScene::init()
 
 	gui->setActiveContext("GameScene");
 
-	CEGUI::Window* w = gui->addWindow("TaharezLook/Button", "PlayButton", Vector4(0.3f, 0.1f, 0.4f, 0.2f));
-	//w->subscribeEvent(CEGUI::PushButton::EventMouseClick, CEGUI::SubscriberSlot(&MainMenu::startGame, this));
-	w->setText("PLAY");
-	GameObject* rend = new GameObject("Quad");
+
+	GameObject* ship = new GameObject("Ship");
 	
-	Material* m = new BasicMaterial("Resources/Files/TestMat.mat", resourceManager->fetchShader("Resources/Shaders/TestShader.glsl"));
+	Material* m = new BasicMaterial("Resources/Files/TestMat.mat", resourceManager->fetchShader("Resources/Shaders/Basic2D.glsl"));
 
 	m->setTexture("diffuse", resourceManager->fetchTexture("Resources/Textures/Grid.png"));
 
 
-	rend->addComponent(new MeshRenderer(resourceManager->fetchMesh("Resources/Meshes/Square.obj", VertexType::P), m));
+	ship->addComponent(new MeshRenderer(resourceManager->fetchMesh("Resources/Meshes/Ship.obj", VertexType::PT), m));
 
 	GameObject* cam = new GameObject("Camera");
 
-	cam->addComponent(new Camera(-1, 1, 1, -1, -1, 1));
+	cam->addComponent(new Camera(1.6, 800 / 600, 0.001, 1000.0));
+	cam->addComponent(new FreeMove());
 
 	renderingEngine->setCamera((Camera*)cam->getComponentOfType(TypeID<Camera>::getType()));
 
 
 	root->addChild(cam);
-	root->addChild(rend);
-
+	root->addChild(ship);
 
 }
 
@@ -53,7 +51,7 @@ GameScene::~GameScene()
 
 void GameScene::update()
 {
-	
+
 
 	root->updateAll();
 
@@ -62,7 +60,6 @@ void GameScene::update()
 
 void GameScene::render()
 {
-
 	renderingEngine->render(root);
 
 }

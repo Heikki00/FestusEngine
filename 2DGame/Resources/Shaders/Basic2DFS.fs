@@ -1,7 +1,6 @@
 #version 430
 
 in Vertex{
-    vec2 pos;
     vec2 coord;
 } vertex;
 
