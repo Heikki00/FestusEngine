@@ -22,7 +22,11 @@ public:
 		activeScene = scenes[scene];
 		activeScene->activate();
 	}
-
+	//Returns the active scene
+	
+	Scene* getActiveScene() {
+		return activeScene;
+	}
 
 protected:
 	std::map<string, Scene*> scenes;

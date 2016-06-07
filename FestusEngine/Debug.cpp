@@ -100,18 +100,18 @@ std::vector<std::string> Debug::internals::getFilenames(U32 errortype)
 	
 	
 	while (errortype != 0) {
-		switch (errortype)
-		{
-		case ErrorType::CRITICAL_ERROR: { v.push_back("Critical.log"); XORERROR(errortype, ErrorType::CRITICAL_ERROR)}
-		case ErrorType::LOG: { v.push_back("Log.log"); XORERROR(errortype, ErrorType::LOG)}
-		case ErrorType::FILE_ERROR: { v.push_back("FileError.log"); XORERROR(errortype, ErrorType::FILE_ERROR)}
-		case ErrorType::SHADER_ERROR: { v.push_back("ShaderError.log"); XORERROR(errortype, ErrorType::SHADER_ERROR)}
-		case ErrorType::RESOURCE_ERROR: { v.push_back("ResourceError.log"); XORERROR(errortype, ErrorType::RESOURCE_ERROR)}
-		case ErrorType::TEXTURE_ERROR: { v.push_back("TextureError.log"); XORERROR(errortype, ErrorType::TEXTURE_ERROR)}
-		case ErrorType::OPENGL_ERROR: { v.push_back("OpenGLError.log"); XORERROR(errortype, ErrorType::OPENGL_ERROR)}
-		default: errortype = 0;
-		}
+		
+		
+		if (ErrorType::CRITICAL_ERROR & errortype) { v.push_back("Critical.log"); XORERROR(errortype, ErrorType::CRITICAL_ERROR)}
+		else if (ErrorType::LOG & errortype) { v.push_back("Log.log"); XORERROR(errortype, ErrorType::LOG)}
+		else if (ErrorType::FILE_ERROR & errortype) { v.push_back("FileError.log"); XORERROR(errortype, ErrorType::FILE_ERROR)}
+		else if (ErrorType::SHADER_ERROR & errortype) { v.push_back("ShaderError.log"); XORERROR(errortype, ErrorType::SHADER_ERROR)}
+		else if (ErrorType::RESOURCE_ERROR & errortype) { v.push_back("ResourceError.log"); XORERROR(errortype, ErrorType::RESOURCE_ERROR)}
+		else if (ErrorType::TEXTURE_ERROR & errortype) { v.push_back("TextureError.log"); XORERROR(errortype, ErrorType::TEXTURE_ERROR)}
+		else if (ErrorType::OPENGL_ERROR & errortype) { v.push_back("OpenGLError.log"); XORERROR(errortype, ErrorType::OPENGL_ERROR)}
+		else errortype = 0;
 	}
+	
 	return v;
 }
 

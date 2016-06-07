@@ -134,14 +134,33 @@ Texture* ResourceManager::loadTexture(Texture* t, LoadFlag flag)
 	return r.val;
 }
 
-Texture* ResourceManager::fetchTexture(const string& filename, LoadFlag flag /*= LoadFlag::UNTIL_LAST_FREED*/)
+Texture* ResourceManager::fetchTexture(const string& str, LoadFlag flag /*= LoadFlag::UNTIL_LAST_FREED*/)
 {
+
+		auto i = textures.find(str);
+		if (i != textures.end()) {
+			i->second.ref += 1;
+			return i->second.val;
+		}
+		else return loadTexture(str, flag);
+
+}
+
+Texture* ResourceManager::fetchTextureLoad(const string& saveData, LoadFlag flag /*= LoadFlag::UNTIL_LAST_FREED*/)
+{
+	string line;
+
+	std::istringstream ss(saveData);
+	std::getline(ss, line, ' ');
+	std::getline(ss, line, ' ');
+	string filename = line;
+
 	auto i = textures.find(filename);
-	if (i != textures.end()) { 
+	if (i != textures.end()) {
 		i->second.ref += 1;
 		return i->second.val;
 	}
-	else return loadTexture(filename, flag);
+	else return loadTexture(Texture::loadTexture(saveData), flag);
 }
 
 Texture* ResourceManager::getTexture(const string& name)
@@ -159,7 +178,7 @@ void ResourceManager::freeTexture(Texture* t)
 	auto i = textures.find(t->getName());
 
 	if (i == textures.end()) {
-		Debug::log(ErrorType::RESOURCE_ERROR, "ERROR: Tried to free Texture that was not stored in ResourceManager: %s\n", t->getName());
+		Debug::log(ErrorType::RESOURCE_ERROR, "ERROR: Tried to free Texture that was not stored in ResourceManager: %s\n", t->getName().c_str());
 		return;
 	}
 

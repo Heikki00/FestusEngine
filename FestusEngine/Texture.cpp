@@ -1,9 +1,10 @@
 #include "Texture.h"
+#include <string>
 
 
 
 
-Texture::Texture(const std::string& filename, GLenum textureTarget /*= GL_TEXTURE_2D*/, GLenum format /*= GL_NONE*/, GLenum internalFormat /*= GL_RGBA8*/, GLenum type/*= GL_NONE*/, GLenum filter /*= GL_LINEAR_MIPMAP_LINEAR*/, GLenum wrap /*= GL_REPEAT*/)
+Texture::Texture(const std::string& filename, GLenum textureTarget /*= GL_TEXTURE_2D*/, GLenum format /*= GL_NONE*/, GLenum internalformat /*= GL_RGBA8*/, GLenum type/*= GL_NONE*/, GLenum filter /*= GL_LINEAR_MIPMAP_LINEAR*/, GLenum wrap /*= GL_REPEAT*/)
 {
 
 	
@@ -14,7 +15,9 @@ Texture::Texture(const std::string& filename, GLenum textureTarget /*= GL_TEXTUR
 	this->format = format;
 	this->type = type;
 	this->internalformat = internalformat;
+	
 
+	
 
 	//Image format
 	FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
@@ -101,8 +104,8 @@ Texture::Texture(const std::string& filename, GLenum textureTarget /*= GL_TEXTUR
 	glBindTexture(textureTarget, ID);
 
 	//If uses mipmaps, calculate the amount of them needed. Otherwise, just use one layer
-	if(usesMipmaps) glTexStorage2D(textureTarget, (U32)floor(log2(Math::max((F32)width, (F32)height))), internalFormat, width, height);
-	else glTexStorage2D(textureTarget, 1, internalFormat, width, height);
+	if(usesMipmaps) glTexStorage2D(textureTarget, (U32)floor(log2(Math::max((F32)width, (F32)height))), internalformat, width, height);
+	else glTexStorage2D(textureTarget, 1, internalformat, width, height);
 
 	//Actually set the data
 	glTexSubImage2D(textureTarget, 0, 0, 0, width, height, format, type, bits);
@@ -132,8 +135,6 @@ Texture::Texture(const std::string& filename, GLenum textureTarget /*= GL_TEXTUR
 	FreeImage_Unload(dib);
 
 
-
-
 }
 
 
@@ -141,7 +142,7 @@ Texture::Texture(const std::string& filename, GLenum textureTarget /*= GL_TEXTUR
 
 
 
-Texture::Texture(const string& name, void** data, U32 width, U32 height, U32 depth, GLenum textureTarget, GLenum format, GLenum internalFormat, GLenum type, GLenum filter, GLenum wrap, GLenum* attacments)
+Texture::Texture(const string& name, void** data, U32 width, U32 height, U32 depth, GLenum textureTarget, GLenum format, GLenum internalFormat, GLenum type, GLenum filter, GLenum wrap)
 {
 	this->name = name;
 	this->width = width;
@@ -304,33 +305,40 @@ Texture* Texture::loadTexture(const string& saveData)
 	string str = saveData;
 	
 	if (str.at(0) == '0') {
-		str = str.substr(2);
+		string line;
 
-		string filename = str.substr(0, str.find_first_of(' '));
+		std::istringstream ss(str);
+		std::string result;
 
-		str = str.substr(str.find_first_of(' '));
+		std::getline(ss, line, ' ');
 
-		GLenum texTar = std::stoi(str.substr(str.find_first_of(' ')));
+		std::getline(ss, line, ' ');
 
-		str = str.substr(str.find_first_of(' '));
+		string filename = line;
 
-		GLenum format = std::stoi(str.substr(str.find_first_of(' ')));
+		std::getline(ss, line, ' ');
 
-		str = str.substr(str.find_first_of(' '));
+		GLenum texTar = std::stoul(line);
 
-		GLenum intFormat = std::stoi(str.substr(str.find_first_of(' ')));
+		std::getline(ss, line, ' ');
 
-		str = str.substr(str.find_first_of(' '));
+		GLenum format = std::stoul(line);
 
-		GLenum type = std::stoi(str.substr(str.find_first_of(' ')));
+		std::getline(ss, line, ' ');
 
-		str = str.substr(str.find_first_of(' '));
+		GLenum intFormat = std::stoul(line);
 
-		GLenum filter = std::stoi(str.substr(str.find_first_of(' ')));
+		std::getline(ss, line, ' ');
 
-		str = str.substr(str.find_first_of(' '));
+		GLenum type = std::stoul(line);
 
-		GLenum wrap = std::stoi(str.substr(str.find_first_of(' ')));
+		std::getline(ss, line, ' ');
+
+		GLenum filter = std::stoul(line);
+
+		std::getline(ss, line, ' ');
+
+		GLenum wrap = std::stoul(line);
 
 		return new Texture(filename, texTar, format, intFormat, type, filter, wrap);
 	}
@@ -360,8 +368,10 @@ string Texture::save()
 		res += " ";
 
 		res += std::to_string((U32)internalformat);
+		//std::cout << "INTERNALFORMAT: " << internalformat << ", " << (((U32)-1) - internalformat) << ", " << ((internalformat == GL_RGBA8) ? "true" : "false")<< std::endl;
 
 		res += " ";
+
 
 		res += std::to_string((U32)type);
 	
@@ -377,6 +387,8 @@ string Texture::save()
 		res += " ";
 
 		res += std::to_string((U32)wrap);
+
+		std::cout << "INTERNALFORMAT: " << internalformat << std::endl;
 
 		return res;
 	

@@ -9,18 +9,30 @@ Material::Material(const string& filename)
 
 		load();
 	}
+	else {
+		fileManager->write(filename, "");
+	}
 }
 
 void Material::save()
 {
-	fileManager->write(filename, fileManager->toJson(this));
+	Json::Value* val = toJson();
+	fileManager->write(filename, Json::StyledWriter().write(*val));
+	delete val;
+}
+
+string Material::getFilename()
+{
+	return filename;
 }
 
 void Material::load()
 {
-	MappedValues* m = fileManager->fromJson(fileManager->getContents(filename));
 
-	replaceValues(m);
+	Json::Value* v = fileManager->parseJson(fileManager->getContents(filename));
+	fromJson(*v);
+	delete v;
+
 
 
 }

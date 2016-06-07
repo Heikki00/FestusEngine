@@ -1,5 +1,6 @@
 #include "MeshRenderer.h"
 #include "ResourceManager.h"
+#include "BasicMaterial.h"
 
 
 COMPONENTREGISTER(MeshRenderer)
@@ -63,11 +64,22 @@ void MeshRenderer::setEnabled(bool val)
 
 MappedValues* MeshRenderer::save()
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	MappedValues* m = new MappedValues;
+	m->setString("type", "MeshRenderer");
+	m->setString("filename", mesh->getFilename());
+	m->setU32("vertType", (U32)mesh->getVertexType());
+	m->setString("material", material->getFilename());
+	if(materialSaving)	material->save();
+	return m;
 }
 
 void MeshRenderer::load(const MappedValues& map)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	type = TypeID<MeshRenderer>::getType();
+	
+	mesh = resourceManager->fetchMesh(map.getString("filename"), (VertexType)map.getU32("vertType"));
+
+	material = new BasicMaterial(map.getString("material"));
+
 }
 

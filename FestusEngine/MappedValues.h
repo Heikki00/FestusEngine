@@ -1,4 +1,5 @@
 #pragma once
+#include "json/json.h"
 
 class Texture;
 class UniformStruct;
@@ -56,6 +57,7 @@ public:
 	void copyValues(const MappedValues* map);
 	void replaceValues(const MappedValues* map);
 
+	void clear();
 
 	std::map<string, Vector2> getVector2s() const { return vector2s; }	
 	std::map<string, Vector3> getVector3s() const { return vector3s; }	
@@ -75,6 +77,9 @@ public:
 	
 	std::map<string, string> getStrings() const { return strings; }
 
+	void fromJson(const Json::Value& v);
+
+	Json::Value* toJson();
 
 private:
 	std::map<string, Vector2> vector2s;

@@ -10,6 +10,7 @@ GameObject::GameObject(const std::string& name) : ID(++IDCounter)
 {
 	transform = new Transform;
 	this->name = name;
+	parent = nullptr;
 }
 
 GameObject::~GameObject()
@@ -76,7 +77,8 @@ void GameObject::updateAll()
 ObjectSaveData GameObject::save()
 {
 	ObjectSaveData res;
-	res.name = name;
+	res.name = &name;
+	res.transform = transform;
 	res.componentData.reserve(components.size());
 	res.childSaveData.reserve(children.size());
 
@@ -258,6 +260,12 @@ GameObject* GameObject::getParent()
 	return parent;
 }
 
+GameObject* GameObject::getRoot()
+{
+	if (parent == nullptr) return this;
+	return parent->getRoot();
+}
+
 bool GameObject::isRoot() const
 {
 	return !parent;
@@ -271,6 +279,11 @@ Transform& GameObject::getTransform()
 std::string GameObject::getName() const
 {
 	return name;
+}
+
+void GameObject::addLoadedComponent(GameComponent* component)
+{
+	components.push_back(component);
 }
 
 bool GameObject::operator<(const GameObject& g)

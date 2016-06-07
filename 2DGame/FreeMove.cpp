@@ -90,11 +90,12 @@ MappedValues* FreeMove::save()
 {
 	MappedValues* m = new MappedValues;
 	m->setString("type", "FreeMove");
+	
 	return m;
 }
 
 void FreeMove::load(const MappedValues& map)
 {
-	type = TypeID<FreeMove>::getType();
+	
 }
 

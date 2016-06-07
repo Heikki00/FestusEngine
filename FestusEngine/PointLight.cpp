@@ -14,7 +14,7 @@ void PointLight::setUniform(const string& uniform, Shader* shader)
 {
 	BaseLight::setUniform(uniform + ".base", shader);
 
-	shader->setUniformStructMember(uniform + ".positon", getTransform().getWorldPosition());
+	shader->setUniformStructMember(uniform + ".position", getTransform().getWorldPosition());
 
 	shader->setUniformStructMember(uniform + ".range", range);
 

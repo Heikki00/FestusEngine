@@ -175,8 +175,8 @@ Shader::Shader(const string& filename) : filename(filename)
 			u.uniformType = RENDERINGENGINE;
 		}
 		
-		else if (strncmp(u.name.c_str(), "M_", 2) == 0) {
-			u.uniformType = MATERIAL;
+		else if (strncmp(u.name.c_str(), "_", 1) == 0) {
+			u.uniformType = UNDEFINED;
 			
 		}
 
@@ -203,6 +203,9 @@ Shader::Shader(const string& filename) : filename(filename)
 
 		else if (u.name == "eyepos") {
 			u.uniformType = EYEPOS;
+		}
+		else {
+			u.uniformType = MATERIAL;
 		}
 	}
 
@@ -245,7 +248,7 @@ void Shader::updateUniforms(Material* m, Transform& t)
 		U32 prefixLenght = 0;
 		if (u.uniformType == MATERIAL) {
 			map = m;
-			prefixLenght = 2;
+			prefixLenght = 0;
 		}
 
 		else if (u.uniformType == RENDERINGENGINE){
@@ -339,8 +342,7 @@ void Shader::updateUniforms(Material* m, Transform& t)
 					}
 					t->bind(slot);
 
-					//std::cout << "Bound texture " << t->getName() << " to slot " << slot << " and set uniform " << u.name << " at " << u.location << " to " << slot << std::endl;
-
+					
 					glUniform1i(u.location, slot);
 
 				}

@@ -17,8 +17,14 @@ public:
 	//Creates and attaches renderbuffer to the framebuffer
 	void attachRenderbuffer(GLenum attachment, GLenum format, U32 width, U32 height);
 
+
+	void bindAsRenderTarget();
+
 private:
+	U32 width, height;
 	GLuint ID;
-	std::vector<Texture*> textures;
 	std::vector<GLuint> renderbuffers;
+	std::vector<GLenum> colorBuffers;
+
+
 };

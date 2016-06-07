@@ -10,9 +10,18 @@ public:
 
 	BaseLight(const Vector3& color, float intensity);
 
+	BaseLight();
+
 	virtual ~BaseLight() = default;
 
 	virtual void free() override;
+
+	virtual void update() override;
+	
+	//Returns true if the light is enabled(requiers its scene to be active)
+	bool isEnabled() const { return enabled && intEnabled; }
+
+	void setEnabled(bool e) { enabled = e; }
 
 	Vector3 getColor() const;
 	void setColor(Vector3 val);
@@ -33,7 +42,7 @@ private:
 
 	Vector3 color;
 	float intensity;
-	
+	bool enabled, intEnabled;
 
 
 };

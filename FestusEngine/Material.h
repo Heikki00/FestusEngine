@@ -19,6 +19,7 @@ public:
 
 	void save();
 
+	string getFilename();;
 
 protected:
 	void load();

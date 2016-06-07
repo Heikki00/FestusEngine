@@ -74,7 +74,11 @@ public:
 
 	Texture* loadTexture(Texture* t, LoadFlag flag = LoadFlag::UNTIL_LAST_FREED);
 
+	
 	Texture* fetchTexture(const string& filename, LoadFlag flag = LoadFlag::UNTIL_LAST_FREED);
+
+	//Special function that checks if the texture has already been loaded, and takes savedata as input
+	Texture* fetchTextureLoad(const string& saveData, LoadFlag flag = LoadFlag::UNTIL_LAST_FREED);
 
 	Texture* getTexture(const string& name);
 

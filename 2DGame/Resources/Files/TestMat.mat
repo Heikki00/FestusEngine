@@ -1,0 +1,19 @@
+{
+   "Floats" : {
+      "specularIntensity" : 1,
+      "specularPower" : 500
+   },
+   "Ints" : null,
+   "Matrix2s" : null,
+   "Matrix3s" : null,
+   "Matrix4s" : null,
+   "Strings" : null,
+   "Textures" : {
+      "diffuse" : "0 Resources/Textures/bricks2.jpg 3553 0 32856 0 9729 10497",
+      "normalMap" : "0 Resources/Textures/bricks2_normal.jpg 3553 0 32856 0 9729 10497"
+   },
+   "Uints" : null,
+   "Vector2s" : null,
+   "Vector3s" : null,
+   "Vector4s" : null
+}

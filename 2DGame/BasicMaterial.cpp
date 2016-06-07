@@ -5,19 +5,16 @@
 #include "Texture.h"
 #include "GameObject.h"
 #include "GameRenderLayer.h"
-BasicMaterial::BasicMaterial(const string& filename, Shader* s) : Material(filename)
+BasicMaterial::BasicMaterial(const string& filename) : Material(filename)
 {
-	shader = s;
-	glDepthMask(GL_TRUE);
+	shader = resourceManager->fetchShader("Resources/Shaders/DeferredWriter.glsl");
+	
+	//Yay, placeholders!
+	setFloat("specularIntensity", 1.f);
+	setFloat("specularPower", 500.f);
 
+	if(!getTexture("normalMap")) setTexture("normalMap", resourceManager->fetchTexture("Resources/Textures/DefNormal.png"));
 
-	glFrontFace(GL_CCW);
-	glCullFace(GL_BACK);
-
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-
-	glEnable(GL_DEPTH_CLAMP);
 }
 
 BasicMaterial::~BasicMaterial()
@@ -29,7 +26,7 @@ bool BasicMaterial::render(U32 renderType, GameObject* go)
 {
 	
 	if (renderType == RenderLayerID<GameRenderLayer>::getID()) {
-	
+		
 	
 		shader->bind();
 	

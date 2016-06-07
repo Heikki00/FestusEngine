@@ -8,7 +8,7 @@ class BasicMaterial : public Material {
 public:
 
 
-	BasicMaterial(const string& filename, Shader* s);
+	BasicMaterial(const string& filename);
 
 
 	~BasicMaterial();

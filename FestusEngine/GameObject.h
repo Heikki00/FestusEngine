@@ -128,9 +128,13 @@ public:
 	//Deletes c if it is component of this GameObject
 	void deleteComponent(GameComponent** c);
 
-
+	//Returns the parent of this GameObject
 	GameObject* getParent();
 
+	//Returns the root of the node tree this object is attached to
+	GameObject* getRoot();
+
+	//Returns true if this GameObject is the root object
 	bool isRoot() const;
 
 	//Returns reference to Transform object of this GameObject. Object can be freely modified;
@@ -142,12 +146,12 @@ public:
 	//Unique ID
 	const U32 ID;
 	
-	bool operator <(const GameObject& g);;
+	bool operator <(const GameObject& g);
 
 
-protected:
 
 
+	void addLoadedComponent(GameComponent* component);
 
 
 private:

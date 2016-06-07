@@ -1,6 +1,7 @@
 #pragma once
 #include "MappedValues.h"
 #include "ResourceManager.h"
+#include "Texture.h"
 
 
 
@@ -16,9 +17,7 @@ MappedValues::~MappedValues()
 		resourceManager->freeTexture(t.second);
 	}
 
-	for (auto& u : uniformStructs) {
-		delete u.second;
-	}
+	
 }
 
 void MappedValues::setVector2(const string& name, const Vector2& val)
@@ -273,7 +272,10 @@ void MappedValues::copyValues(const MappedValues* map)
 	matrix3s.insert(map->matrix3s.begin(), map->matrix3s.end());
 	matrix3s.insert(map->matrix3s.begin(), map->matrix3s.end());
 	strings.insert(map->strings.begin(), map->strings.end());
+	for (auto a : map->textures) {
+		setTexture(a.first, resourceManager->getTexture(a.second->getName()));
 
+	}
 }
 
 void MappedValues::replaceValues(const MappedValues* map)
@@ -288,4 +290,170 @@ void MappedValues::replaceValues(const MappedValues* map)
 	matrix3s = map->matrix3s;
 	matrix4s = map->matrix4s;
 	strings = map->strings;
+	textures = map->textures;
+}
+
+void MappedValues::clear()
+{
+	vector2s.clear();
+	vector3s.clear();
+	vector4s.clear();
+	floats.clear();
+	ints.clear();
+	uints.clear();
+	matrix2s.clear();
+	matrix3s.clear();
+	matrix4s.clear();
+	pointers.clear();
+	uniformStructs.clear();
+	strings.clear();
+
+	for (auto& a : textures) {
+		resourceManager->freeTexture(a.second);
+	}
+	textures.clear();
+
+}
+
+void MappedValues::fromJson(const Json::Value& root)
+{
+	
+
+	Json::Value floats = root["Floats"], ints = root["Ints"], uints = root["Uints"], strings = root["Strings"], vector2s = root["Vector2s"], vector3s = root["Vector3s"], vector4s = root["Vector4s"],
+		matrix2s = root["Matrix2s"], matrix3s = root["Matrix3s"], matrix4s = root["Matrix4s"], textures = root["Textures"];
+
+	for (auto i = floats.begin(); i != floats.end(); i++) {
+		setFloat(i.name(), (*i).asFloat());
+	}
+
+	for (auto i = ints.begin(); i != ints.end(); i++) {
+		setI32(i.name(), (*i).asInt());
+	}
+
+	for (auto i = uints.begin(); i != uints.end(); i++) {
+		setU32(i.name(), (*i).asUInt());
+	}
+
+	for (auto i = strings.begin(); i != strings.end(); i++) {
+		setString(i.name(), (*i).asString());
+	}
+
+	for (auto i = vector2s.begin(); i != vector2s.end(); i++) {
+		Vector2 vec((*i)[0].asFloat(), (*i)[1].asFloat());
+		setVector2(i.name(), vec);
+	}
+
+	for (auto i = vector3s.begin(); i != vector3s.end(); i++) {
+		Vector3 vec((*i)[0].asFloat(), (*i)[1].asFloat(), (*i)[2].asFloat());
+		setVector3(i.name(), vec);
+	}
+
+	for (auto i = vector4s.begin(); i != vector4s.end(); i++) {
+		Vector4 vec((*i)[0].asFloat(), (*i)[1].asFloat(), (*i)[2].asFloat(), (*i)[3].asFloat());
+		setVector4(i.name(), vec);
+	}
+
+	for (auto i = matrix2s.begin(); i != matrix2s.end(); i++) {
+		Matrix2 mat((*i)[0].asFloat(), (*i)[1].asFloat(), (*i)[2].asFloat(), (*i)[3].asFloat());
+		setMatrix2(i.name(), mat);
+	}
+
+	for (auto i = matrix3s.begin(); i != matrix3s.end(); i++) {
+		Matrix3 mat((*i)[0].asFloat(), (*i)[1].asFloat(), (*i)[2].asFloat(), (*i)[3].asFloat(), (*i)[4].asFloat(), (*i)[5].asFloat(), (*i)[6].asFloat(), (*i)[7].asFloat(), (*i)[8].asFloat());
+		setMatrix3(i.name(), mat);
+	}
+
+	for (auto i = matrix4s.begin(); i != matrix4s.end(); i++) {
+		Matrix4 mat((*i)[0].asFloat(), (*i)[1].asFloat(), (*i)[2].asFloat(), (*i)[3].asFloat(), (*i)[4].asFloat(), (*i)[5].asFloat(), (*i)[6].asFloat(), (*i)[7].asFloat(), (*i)[8].asFloat(), (*i)[9].asFloat(),
+			(*i)[10].asFloat(), (*i)[11].asFloat(), (*i)[12].asFloat(), (*i)[13].asFloat(), (*i)[14].asFloat(), (*i)[15].asFloat());
+		setMatrix4(i.name(), mat);
+	}
+
+	for (auto i = textures.begin(); i != textures.end(); i++) {
+		setTexture(i.name(), resourceManager->fetchTextureLoad((*i).asString()));
+
+	}
+
+
+
+
+
+
+
+}
+
+Json::Value* MappedValues::toJson()
+{
+
+	Json::Value* res = new Json::Value;
+	Json::Value& root = *res;
+	Json::Value floats, ints, uints, strings, vector2s, vector3s, vector4s, matrix2s, matrix3s, matrix4s, textures;
+
+	for (auto& a : getFloats()) {
+		floats[a.first] = a.second;
+	}
+
+	for (auto& a : getInts()) {
+		ints[a.first] = a.second;
+	}
+
+	for (auto& a : getUints()) {
+		uints[a.first] = a.second;
+	}
+
+	for (auto& a : getStrings()) {
+		strings[a.first] = a.second.c_str();
+	}
+
+	for (auto& a : getVector2s()) {
+		vector2s[a.first].append(a.second.x);
+		vector2s[a.first].append(a.second.y);
+	}
+
+	for (auto& a : getVector3s()) {
+		vector3s[a.first].append(a.second.x);
+		vector3s[a.first].append(a.second.y);
+		vector3s[a.first].append(a.second.z);
+	}
+
+	for (auto& a : getVector4s()) {
+		vector4s[a.first].append(a.second.x);
+		vector4s[a.first].append(a.second.y);
+		vector4s[a.first].append(a.second.z);
+		vector4s[a.first].append(a.second.w);
+	}
+
+	for (auto& a : getMatrix2s()) {
+		for (U32 i = 0; i < 4; ++i) matrix2s[a.first].append(a.second.getElement(i));
+	}
+
+	for (auto& a : getMatrix3s()) {
+		for (U32 i = 0; i < 9; ++i) matrix3s[a.first].append(a.second.getElement(i));
+	}
+
+	for (auto& a : getMatrix4s()) {
+		for (U32 i = 0; i < 16; ++i) matrix4s[a.first].append(a.second.getElement(i));
+	}
+
+	for (auto& a : getTextures()) {
+
+		textures[a.first] = a.second->save();
+	}
+
+
+
+
+	root["Floats"] = floats;
+	root["Ints"] = ints;
+	root["Uints"] = uints;
+	root["Strings"] = strings;
+	root["Vector2s"] = vector2s;
+	root["Vector3s"] = vector3s;
+	root["Vector4s"] = vector4s;
+	root["Matrix2s"] = matrix2s;
+	root["Matrix3s"] = matrix3s;
+	root["Matrix4s"] = matrix4s;
+	root["Textures"] = textures;
+
+	return res;
 }

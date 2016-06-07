@@ -22,8 +22,13 @@ public:
 	Material* getMaterial() const;
 	void setMaterial(Material* val);
 
+	//Returns a value indicating if the renderer is  enabled
 	bool getEnabled() const;
 	void setEnabled(bool val);
+
+	//Returns a value indicating if the material will be saved on save().
+	bool getMaterialSaving() const { return materialSaving; }
+	void setMaterialSaving(bool b) { materialSaving = b; }
 
 	virtual MappedValues* save() override;
 
@@ -36,7 +41,7 @@ private:
 
 	Mesh* mesh;
 	Material* material;
-	bool enabled;
+	bool enabled, materialSaving;
 
 
 

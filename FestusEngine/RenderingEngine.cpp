@@ -13,6 +13,11 @@ RenderingEngine::RenderingEngine()
 
 	samplerSlots["diffuse"] = 1;
 	samplerSlots["normal"] = 2;
+	samplerSlots["displacement"] = 3;
+	samplerSlots["gBuffer_0"] = 4;
+	samplerSlots["gBuffer_1"] = 5;
+	samplerSlots["gBuffer_2"] = 6;
+	samplerSlots["gBuffer_3"] = 7;
 
 	guiLayer = nullptr;
 	GUIEnabled = true;
@@ -50,6 +55,7 @@ void RenderingEngine::render(GameObject* root)
 
 U32 RenderingEngine::addLayer(RenderLayer* r)
 {
+	
 	layers.push_back(r);
 	return layers.size() - 1;
 }

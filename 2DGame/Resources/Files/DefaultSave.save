@@ -1,0 +1,187 @@
+{
+   "CHILDREN" : [
+      {
+         "CHILDREN" : null,
+         "COMPONENTS" : [
+            {
+               "Floats" : null,
+               "Ints" : null,
+               "Matrix2s" : null,
+               "Matrix3s" : null,
+               "Matrix4s" : {
+                  "perspective" : [
+                     0.9712146520614624,
+                     0,
+                     0,
+                     0,
+                     0,
+                     0.9712146520614624,
+                     0,
+                     0,
+                     0,
+                     0,
+                     1.0000019073486328,
+                     -0.0020000019576400518,
+                     0,
+                     0,
+                     1,
+                     0
+                  ]
+               },
+               "Strings" : {
+                  "type" : "Camera"
+               },
+               "Textures" : null,
+               "Uints" : null,
+               "Vector2s" : null,
+               "Vector3s" : null,
+               "Vector4s" : null
+            },
+            {
+               "Floats" : null,
+               "Ints" : null,
+               "Matrix2s" : null,
+               "Matrix3s" : null,
+               "Matrix4s" : null,
+               "Strings" : {
+                  "type" : "FreeMove"
+               },
+               "Textures" : null,
+               "Uints" : null,
+               "Vector2s" : null,
+               "Vector3s" : null,
+               "Vector4s" : null
+            }
+         ],
+         "NAME" : "Camera",
+         "TRANSFORM" : {
+            "px" : -0.29111209511756897,
+            "py" : 2.3317160606384277,
+            "pz" : -4.1938056945800781,
+            "rw" : 0.95531684160232544,
+            "rx" : 0.29551389813423157,
+            "ry" : 0.0059708193875849247,
+            "rz" : -0.0018469911301508546,
+            "s" : 1
+         }
+      },
+      {
+         "CHILDREN" : null,
+         "COMPONENTS" : [
+            {
+               "Floats" : null,
+               "Ints" : null,
+               "Matrix2s" : null,
+               "Matrix3s" : null,
+               "Matrix4s" : null,
+               "Strings" : {
+                  "filename" : "Resources/Meshes/Square.obj",
+                  "material" : "Resources/Files/TestMat.mat",
+                  "type" : "MeshRenderer"
+               },
+               "Textures" : null,
+               "Uints" : {
+                  "vertType" : 3452816845
+               },
+               "Vector2s" : null,
+               "Vector3s" : null,
+               "Vector4s" : null
+            }
+         ],
+         "NAME" : "Floor",
+         "TRANSFORM" : {
+            "px" : 0,
+            "py" : 0,
+            "pz" : 0,
+            "rw" : 0.70710676908493042,
+            "rx" : 0.70710676908493042,
+            "ry" : 0,
+            "rz" : 0,
+            "s" : 5
+         }
+      },
+      {
+         "CHILDREN" : null,
+         "COMPONENTS" : [
+            {
+               "Floats" : {
+                  "intensity" : 1
+               },
+               "Ints" : null,
+               "Matrix2s" : null,
+               "Matrix3s" : null,
+               "Matrix4s" : null,
+               "Strings" : {
+                  "type" : "DirectionalLight"
+               },
+               "Textures" : null,
+               "Uints" : null,
+               "Vector2s" : null,
+               "Vector3s" : {
+                  "color" : [ 1, 1, 1 ]
+               },
+               "Vector4s" : null
+            }
+         ],
+         "NAME" : "sun",
+         "TRANSFORM" : {
+            "px" : 0,
+            "py" : 0,
+            "pz" : 0,
+            "rw" : 0.92387950420379639,
+            "rx" : -0.38268345594406128,
+            "ry" : 0,
+            "rz" : 0,
+            "s" : 1
+         }
+      },
+      {
+         "CHILDREN" : null,
+         "COMPONENTS" : [
+            {
+               "Floats" : {
+                  "intensity" : 20,
+                  "range" : 0.30000001192092896
+               },
+               "Ints" : null,
+               "Matrix2s" : null,
+               "Matrix3s" : null,
+               "Matrix4s" : null,
+               "Strings" : {
+                  "type" : "PointLight"
+               },
+               "Textures" : null,
+               "Uints" : null,
+               "Vector2s" : null,
+               "Vector3s" : {
+                  "color" : [ 1, 0.20000000298023224, 0.20000000298023224 ]
+               },
+               "Vector4s" : null
+            }
+         ],
+         "NAME" : "redL",
+         "TRANSFORM" : {
+            "px" : 0,
+            "py" : 0.10000000149011612,
+            "pz" : 0.38499978184700012,
+            "rw" : 1,
+            "rx" : 0,
+            "ry" : 0,
+            "rz" : 0,
+            "s" : 1
+         }
+      }
+   ],
+   "COMPONENTS" : null,
+   "NAME" : "root",
+   "TRANSFORM" : {
+      "px" : 0,
+      "py" : 0,
+      "pz" : 0,
+      "rw" : 1,
+      "rx" : 0,
+      "ry" : 0,
+      "rz" : 0,
+      "s" : 1
+   }
+}

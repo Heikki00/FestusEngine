@@ -6,7 +6,6 @@
 #include "DirectionalLight.h"
 #include "GameRenderLayer.h"
 #include "GUIRenderLayer.h"
-#include "ImageData.h"
 #include "BasicMaterial.h"
 
 
@@ -19,29 +18,41 @@ void GameScene::init()
 {
 	root = new GameObject("root");
 
-	gui->setActiveContext("GameScene");
-
-
-	GameObject* ship = new GameObject("Ship");
 	
-	Material* m = new BasicMaterial("Resources/Files/TestMat.mat", resourceManager->fetchShader("Resources/Shaders/Basic2D.glsl"));
+	renderingEngine->setVector3("ambient", Vector3(0.1));
 
-	m->setTexture("diffuse", resourceManager->fetchTexture("Resources/Textures/Grid.png"));
+	GameObject* floor = new GameObject("Floor");
+	
+
+	Material* m = new BasicMaterial("Resources/Files/TestMat.mat");
 
 
-	ship->addComponent(new MeshRenderer(resourceManager->fetchMesh("Resources/Meshes/Ship.obj", VertexType::PT), m));
+
+	floor->addComponent(new MeshRenderer(resourceManager->fetchMesh("Resources/Meshes/Square.obj", VertexType::PTNT), m));
+
+	floor->getTransform().rotate(Quaternion(Vector3(1, 0, 0), PI / 2));
+	floor->getTransform().scale(5);
+
+	GameObject* sun = new GameObject("sun");
+
+	sun->addComponent(new DirectionalLight(Vector3(1), 1));
+	sun->getTransform().rotate(Quaternion(Vector3(1,0,0), -PI / 4));
+
+	GameObject* redLight = new GameObject("redL");
+
+	redLight->addComponent(new PointLight(Vector3(1, 0.2, 0.2), 20.f, 0.3f));
+	redLight->getTransform().setPosition(Vector3(0,0.1,0));
 
 	GameObject* cam = new GameObject("Camera");
 
 	cam->addComponent(new Camera(1.6, 800 / 600, 0.001, 1000.0));
 	cam->addComponent(new FreeMove());
 
-	renderingEngine->setCamera((Camera*)cam->getComponentOfType(TypeID<Camera>::getType()));
-
 
 	root->addChild(cam);
-	root->addChild(ship);
-
+	root->addChild(floor);
+	root->addChild(sun);
+	root->addChild(redLight);
 }
 
 GameScene::~GameScene()
@@ -51,9 +62,28 @@ GameScene::~GameScene()
 
 void GameScene::update()
 {
+	root->getChildByName("redL")->getTransform().translate(Vector3(0, 0, 0.005));
 
-
+	
 	root->updateAll();
+
+	
+
+
+	if (input->isKeyActive(SDLK_p)) {
+		root->getChildByName("sun")->getTransform().rotate(Quaternion(Vector3(1, 0, 0), 0.01));
+	}
+	else if (input->isKeyActive(SDLK_o)) {
+		root->getChildByName("sun")->getTransform().rotate(Quaternion(Vector3(1, 0, 0), -0.01));
+	}
+
+
+	if (input->wasKeyPressed(SDLK_t)) {
+		saveManager->save(root);
+	}
+
+
+
 
 
 }

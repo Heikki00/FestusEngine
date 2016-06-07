@@ -7,8 +7,6 @@
 
 void TestGame::init()
 {
-	physics = new Physics();
-	
 	gui->loadScheme("TaharezLook");
 		gui->loadScheme("WindowsLook");
 	
@@ -34,7 +32,7 @@ void TestGame::init()
 
 TestGame::~TestGame()
 {
-	delete physics;
+
 	for (auto a : scenes) {
 		delete a.second;
 	}

@@ -23,6 +23,9 @@ public:
 	//De-activates the scene after scene change
 	virtual void deactivate() {};
 
+	//Returns the root of this scene
+	GameObject* getRoot() { return root; }
+
 	U32 getType() const { return type; }
 
 protected:

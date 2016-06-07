@@ -13,10 +13,11 @@ public:
 
 	virtual ~RenderLayer() = default;
 
+
+
 	//Function for rendering the frame
 	virtual void render(GameObject* root) = 0;
 
 
 
 };
-

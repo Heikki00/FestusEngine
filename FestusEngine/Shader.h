@@ -5,7 +5,7 @@ class Material;
 
 //Enum that defines where to get the uniform's value
 enum UniformType {
-	UNDEFINED,
+	UNDEFINED = 0,
 	MATERIAL,
 	RENDERINGENGINE,
 	RENDERLAYER,
@@ -83,9 +83,9 @@ private:
 	GLuint ID;
 
 	std::vector<Uniform> structMembers;
-
+public:
 	std::vector<Uniform> uniforms;
-	
+private:
 	const string filename;
 
 

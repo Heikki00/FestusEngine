@@ -4,6 +4,13 @@
 /TileFS.fs 457 637
 /TestVS.vs 637 748
 /TestFS.fs 748 833
+/BasicVertex.vs 833 1029
+/BasicFS.fs 1029 1206
+/Writer.vs 1206 1888
+/Writer.fs 1888 2643
+/DeferredAmbient.fs 2643 3030
+/DeferredDirectional.fs 3030 5799
+/DeferredPoint.fs 5799 8558
 $
 #version 430
 
@@ -89,6 +96,389 @@ out vec4 color;
 void main(){
 color = vec4(0.5, 0.3, 0.0, 1.0);
 }
+
+
+
+
+#version 430
+
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec3 textureCoord;
+
+
+out vec2 texCoord;
+
+void main(){
+
+gl_Position = vec4(position, 1);
+
+texCoord = textureCoord.xy;
+}
+#version 430
+
+in Vertex{
+    vec2 coord;
+} vertex;
+
+uniform sampler2D M_diffuse;
+
+out vec4 finalColor;
+
+void main(){
+        finalColor = texture(M_diffuse, vertex.coord);
+
+}
+
+
+#version 430
+
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec3 textureCoord;
+layout(location = 2) in vec3 normal;
+layout(location = 3) in vec3 tanget;
+
+uniform mat4 MVP;
+uniform mat4 model;
+
+out vec2 texCoord;
+out vec3 worldPos;
+out mat3 tbnMatrix;
+
+void main(){
+
+    gl_Position = MVP * vec4(position, 1);
+    
+    texCoord = textureCoord.xy;
+
+    worldPos = (model * vec4(position, 1)).xyz;
+    
+    vec3 n = normalize((model * vec4(normal, 0.0)).xyz);
+    vec3 t = normalize((model * vec4(tanget, 0.0)).xyz);
+    
+    t = normalize(t - (dot(t,n)) * n);
+    
+    
+    vec3 biTanget = (cross(t,n));
+    
+    tbnMatrix = mat3(t,biTanget, n);
+    
+    
+    
+    
+}#version 430
+
+in vec2 texCoord;
+in vec3 worldPos;
+in mat3 tbnMatrix;
+
+uniform sampler2D diffuse;
+uniform sampler2D normalMap;
+
+uniform float specularIntensity;
+uniform float specularPower;
+
+layout (location = 0) out vec4 diffuseColor;
+layout (location = 1) out vec4 normalColor;
+layout (location = 2) out vec4 positionColor;
+layout (location = 3) out float depthColor;
+
+
+void main(){ 
+
+vec3 n = normalize(tbnMatrix * (255.0/128.0 * texture(normalMap, texCoord).xyz - 1));
+diffuseColor = texture(diffuse, texCoord);//1 is a placeholder for opacity
+//diffuseColor = vec4(0.5,0,0.5,1);
+normalColor = vec4(n, specularIntensity);
+//normalColor = vec4(0,1,0, specularIntensity);
+
+positionColor = vec4(worldPos, specularPower);
+
+depthColor = gl_FragCoord.z;
+
+}
+
+#version 430
+
+in vec2 texCoord;
+
+uniform sampler2D RL_gBuffer_0;
+uniform sampler2D RL_gBuffer_1;
+uniform sampler2D RL_gBuffer_2;
+uniform sampler2D RL_gBuffer_3;
+uniform vec3 R_ambient;
+
+out vec4 finalColor;
+
+void main(){
+    gl_FragDepth  = texture(RL_gBuffer_3, texCoord).r;
+
+    finalColor = texture( RL_gBuffer_0, texCoord) * vec4( R_ambient, 1);
+    //finalColor = vec4(1,1,0, 1);
+
+}#version 430
+
+struct BaseLight{
+    vec3 color;
+    float intensity;
+};
+
+
+struct DirectionalLight{
+    BaseLight base;
+    vec3 direction;
+};
+
+
+struct PointLight {
+BaseLight base;
+vec3 position;
+float range;
+};
+
+
+vec3 calcLight(BaseLight base, vec3 direction, vec3 normal, vec3 worldPos, vec3 eyePos, float specularIntensity, float specularPower){
+        
+        float diffuseFactor = dot(normal, -direction);
+        vec3 diffuseColor;
+        
+        vec3 specularColor;
+        
+        if(diffuseFactor > 0){
+                diffuseColor = base.color * base.intensity * diffuseFactor;
+                         
+
+
+                vec3 directionToEye = normalize(eyePos - worldPos);
+                vec3 reflectDirection = normalize(reflect(direction, normal));
+               
+                
+                vec3 halfVector = normalize(directionToEye - direction);
+
+                float specularFactor = dot(normal, halfVector);
+                specularFactor = pow(specularFactor, specularPower);
+                
+        
+                if(specularFactor > 0){
+                        specularColor = base.color * specularIntensity * specularFactor;
+                       
+                }
+        
+        
+        
+        }
+
+        return diffuseColor + specularColor;
+
+}
+
+vec3 calcDirectionalLight(DirectionalLight dir, vec3 normal, vec3 worldPos, vec3 eyePos, float specIntensity, float specPower){
+        return calcLight(dir.base, dir.direction, normal, worldPos, eyePos, specIntensity, specPower);
+}
+
+vec3 calcPointLight(PointLight light, vec3 normal, vec3 worldPos, vec3 eyePos, float specularIntensity, float specularPower){
+vec3 lightDirection = worldPos - light.position;
+
+float dist = length(lightDirection);
+if(dist > light.range){
+return vec3(0,0,0);
+}
+
+vec3 color = calcLight(light.base, lightDirection, normal, worldPos, eyePos, specularIntensity, specularPower);
+
+
+return color * (1 - dist / light.range);
+
+
+
+}
+
+
+
+
+in vec2 texCoord;
+
+out vec4 finalColor;
+
+uniform DirectionalLight R_directionalLight;
+
+uniform sampler2D RL_gBuffer_0;
+uniform sampler2D RL_gBuffer_1;
+uniform sampler2D RL_gBuffer_2;
+uniform sampler2D RL_gBuffer_3;
+
+uniform vec3 C_eyePos;
+
+
+
+
+void main(){
+gl_FragDepth = texture(RL_gBuffer_3, texCoord).r;
+
+
+
+
+vec4 normalColor = texture(RL_gBuffer_1, texCoord);
+vec4 posColor = texture(RL_gBuffer_2, texCoord);
+
+
+
+
+
+    vec3 lightAmt = calcDirectionalLight(R_directionalLight, normalColor.xzy, posColor.xyz , C_eyePos,  normalColor.w, posColor.w);
+
+   //vec3    lightAmt = dot(-R_directionalLight.direction, normalColor.xyz) * R_directionalLight.base.color * R_directionalLight.base.intensity;
+
+    
+
+
+    
+
+finalColor =  texture(RL_gBuffer_0, texCoord)* vec4(lightAmt, 1);
+    
+      //  finalColor = ;
+  
+
+
+
+}
+
+
+
+
+
+
+
+
+#version 430
+
+struct BaseLight{
+    vec3 color;
+    float intensity;
+};
+
+
+struct DirectionalLight{
+    BaseLight base;
+    vec3 direction;
+};
+
+
+struct PointLight {
+BaseLight base;
+vec3 position;
+float range;
+};
+
+
+vec3 calcLight(BaseLight base, vec3 direction, vec3 normal, vec3 worldPos, vec3 eyePos, float specularIntensity, float specularPower){
+        
+        float diffuseFactor = dot(normal, -direction);
+        vec3 diffuseColor;
+        
+        vec3 specularColor;
+        
+        if(diffuseFactor > 0){
+                diffuseColor = base.color * base.intensity * diffuseFactor;
+                         
+
+
+                vec3 directionToEye = normalize(eyePos - worldPos);
+                vec3 reflectDirection = normalize(reflect(direction, normal));
+               
+                
+                vec3 halfVector = normalize(directionToEye - direction);
+
+                float specularFactor = dot(normal, halfVector);
+                specularFactor = pow(specularFactor, specularPower);
+                
+        
+                if(specularFactor > 0){
+                        specularColor = base.color * specularIntensity * specularFactor;
+                       
+                }
+        
+        
+        
+        }
+
+        return diffuseColor + specularColor;
+
+}
+
+vec3 calcDirectionalLight(DirectionalLight dir, vec3 normal, vec3 worldPos, vec3 eyePos, float specIntensity, float specPower){
+        return calcLight(dir.base, dir.direction, normal, worldPos, eyePos, specIntensity, specPower);
+}
+
+vec3 calcPointLight(PointLight light, vec3 normal, vec3 worldPos, vec3 eyePos, float specularIntensity, float specularPower){
+vec3 lightDirection = worldPos - light.position;
+
+float dist = length(lightDirection);
+if(dist > light.range){
+return vec3(0,0,0);
+}
+
+vec3 color = calcLight(light.base, normalize(lightDirection), normal, worldPos, eyePos, specularIntensity, specularPower);
+
+
+return color;// * (1 - dist / light.range);
+
+
+
+}
+
+
+
+
+in vec2 texCoord;
+
+out vec4 finalColor;
+
+uniform PointLight R_pointLight;
+
+uniform sampler2D RL_gBuffer_0;
+uniform sampler2D RL_gBuffer_1;
+uniform sampler2D RL_gBuffer_2;
+uniform sampler2D RL_gBuffer_3;
+
+uniform vec3 C_eyePos;
+
+
+
+
+void main(){
+gl_FragDepth = texture(RL_gBuffer_3, texCoord).r;
+
+
+
+
+vec4 normalColor = texture(RL_gBuffer_1, texCoord);
+vec4 posColor = texture(RL_gBuffer_2, texCoord);
+
+
+
+
+
+    vec3 lightAmt = calcPointLight(R_pointLight, normalColor.xyz, posColor.xyz , C_eyePos,  normalColor.w, posColor.w);
+
+   //vec3    lightAmt = dot(-R_directionalLight.direction, normalColor.xyz) * R_directionalLight.base.color * R_directionalLight.base.intensity;
+
+    
+
+
+    
+
+finalColor =  texture(RL_gBuffer_0, texCoord)* vec4(lightAmt, 1);
+    
+      //  finalColor = ;
+  
+
+
+
+}
+
+
+
+
 
 
 

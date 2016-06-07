@@ -1,5 +1,5 @@
 #include "FileManager.h"
-
+#include "Texture.h"
 
 std::string FileManager::getContents(const std::string& filename)
 {
@@ -153,135 +153,54 @@ bool FileManager::fileExists(const string& filename)
 	return !is.fail();
 }
 
-std::string FileManager::toJson(const MappedValues* m)
+Json::Value* FileManager::toJson(const Transform* t)
 {
-	Json::Value root, floats, ints, uints, strings, vector2s, vector3s, vector4s, matrix2s, matrix3s, matrix4s;
+	Json::Value* res = new Json::Value;
+	Json::Value& root = *res;
+	Json::Value s, r;
 	
-	for(auto& a : m->getFloats()){
-		floats[a.first] = a.second;
-	}
+	
+	root["s"] = t->getScale();
+	root["rx"] = t->getRotation().x;
+	root["ry"] = t->getRotation().y;
+	root["rz"] = t->getRotation().z;
+	root["rw"] = t->getRotation().w;
 
-	for (auto& a : m->getInts()) {
-		ints[a.first] = a.second;
-	}
-
-	for (auto& a : m->getUints()) {
-		uints[a.first] = a.second;
-	}
-
-	for (auto& a : m->getStrings()) {
-		strings[a.first] = a.second;
-	}
-
-	for (auto& a : m->getVector2s()) {
-		vector2s[a.first].append(a.second.x);
-		vector2s[a.first].append(a.second.y);
-	}
-
-	for (auto& a : m->getVector3s()) {
-		vector3s[a.first].append(a.second.x);
-		vector3s[a.first].append(a.second.y);
-		vector3s[a.first].append(a.second.z);
-	}
-
-	for (auto& a : m->getVector4s()) {
-		vector4s[a.first].append(a.second.x);
-		vector4s[a.first].append(a.second.y);
-		vector4s[a.first].append(a.second.z);
-		vector4s[a.first].append(a.second.w);
-	}
-
-	for (auto& a : m->getMatrix2s()) {
-		for (U32 i = 0; i < 4; ++i) matrix2s[a.first].append(a.second.getElement(i));
-	}
-
-	for (auto& a : m->getMatrix3s()) {
-		for (U32 i = 0; i < 9; ++i) matrix3s[a.first].append(a.second.getElement(i));
-	}
-
-	for (auto& a : m->getMatrix4s()) {
-		for (U32 i = 0; i < 16; ++i) matrix4s[a.first].append(a.second.getElement(i));
-	}
-
-	root["Floats"] = floats;
-	root["Ints"] = ints;
-	root["Uints"] = uints;
-	root["Strings"] = strings;
-	root["Vector2s"] = vector2s;
-	root["Vector3s"] = vector3s;
-	root["Vector4s"] = vector4s;
-	root["Matrix2s"] = matrix2s;
-	root["Matrix3s"] = matrix3s;
-	root["Matrix4s"] = matrix4s;
+	root["px"] = t->getPosition().x;
+	root["py"] = t->getPosition().y;
+	root["pz"] = t->getPosition().z;
 
 
-	return Json::StyledWriter().write(root);
+	return res;
+}
+
+
+void FileManager::fromJson(Json::Value& root, Transform* t)
+{
+	if (!t) t = new Transform;
+
+
+
+
+
+	t->setScale(root["s"].asFloat());
+
+
+	t->setPosition(Vector3(root["px"].asFloat(), root["py"].asFloat(), root["pz"].asFloat()));
+
+	t->setRotation(Quaternion(root["rx"].asFloat(), root["ry"].asFloat(), root["rz"].asFloat(), root["rw"].asFloat()));
 
 }
 
-MappedValues* FileManager::fromJson(const string& src)
+
+
+
+Json::Value* FileManager::parseJson(const string& src)
 {
-	MappedValues* m = new MappedValues;
-
-
-	Json::Reader reader;
-	Json::Value root;
-
-
-	reader.parse(src, root);
-
-
-	Json::Value floats = root["Floats"], ints = root["Ints"], uints = root["Uints"], strings = root["Strings"], vector2s = root["Vector2s"], vector3s = root["Vector3s"], vector4s = root["Vector4s"], 
-		matrix2s = root["Matrix2s"], matrix3s = root["Matrix3s"], matrix4s = root["Matrix4s"];
-
-	for (auto i = floats.begin(); i != floats.end(); i++) {
-		m->setFloat(i.name(), (*i).asFloat());
-	}
-
-	for (auto i = ints.begin(); i != ints.end(); i++) {
-		m->setI32(i.name(), (*i).asInt());
-	}
-
-	for (auto i = uints.begin(); i != uints.end(); i++) {
-		m->setU32(i.name(), (*i).asUInt());
-	}
-
-	for (auto i = strings.begin(); i != strings.end(); i++) {
-		m->setString(i.name(), (*i).asString());
-	}
-
-	for (auto i = vector2s.begin(); i != vector2s.end(); i++) {
-		Vector2 vec((*i)[0].asFloat(), (*i)[1].asFloat());
-		m->setVector2(i.name(), vec);
-	}
-
-	for (auto i = vector3s.begin(); i != vector3s.end(); i++) {
-		Vector3 vec((*i)[0].asFloat(), (*i)[1].asFloat(), (*i)[2].asFloat());
-		m->setVector3(i.name(), vec);
-	}
-
-	for (auto i = vector4s.begin(); i != vector4s.end(); i++) {
-		Vector4 vec((*i)[0].asFloat(), (*i)[1].asFloat(), (*i)[2].asFloat(), (*i)[3].asFloat());
-		m->setVector4(i.name(), vec);
-	}
-
-	for (auto i = matrix2s.begin(); i != matrix2s.end(); i++) {
-		Matrix2 mat((*i)[0].asFloat(), (*i)[1].asFloat(), (*i)[2].asFloat(), (*i)[3].asFloat());
-		m->setMatrix2(i.name(), mat);
-	}
-
-	for (auto i = matrix3s.begin(); i != matrix3s.end(); i++) {
-		Matrix3 mat((*i)[0].asFloat(), (*i)[1].asFloat(), (*i)[2].asFloat(), (*i)[3].asFloat(), (*i)[4].asFloat(), (*i)[5].asFloat(), (*i)[6].asFloat(), (*i)[7].asFloat(), (*i)[8].asFloat());
-		m->setMatrix3(i.name(), mat);
-	}
-
-	for (auto i = matrix4s.begin(); i != matrix4s.end(); i++) {
-		Matrix4 mat((*i)[0].asFloat(), (*i)[1].asFloat(), (*i)[2].asFloat(), (*i)[3].asFloat(), (*i)[4].asFloat(), (*i)[5].asFloat(), (*i)[6].asFloat(), (*i)[7].asFloat(), (*i)[8].asFloat(), (*i)[9].asFloat(),
-			(*i)[10].asFloat(), (*i)[11].asFloat(), (*i)[12].asFloat(), (*i)[13].asFloat(), (*i)[14].asFloat(), (*i)[15].asFloat());
-		m->setMatrix4(i.name(), mat);
-	}
-
-	return m;
+	Json::Value* val = new Json::Value;
+	Json::Reader().parse(src, *val);
+	
+	return val;
 }
 
 void FileManager::threadReadFile(const std::string& filename, U32 ID)

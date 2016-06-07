@@ -15,7 +15,7 @@ public:
 	
 
 	//The barebones constructor. Name is the name the texture will be referred as, data is an array of pointers that point to different arrays of data. All except cubemap supported.
-	Texture(const string& name, void** data, U32 width, U32 height, U32 depth, GLenum textureTarget, GLenum format, GLenum internalFormat, GLenum type, GLenum filter,  GLenum wrap, GLenum* attacments);
+	Texture(const string& name, void** data, U32 width, U32 height, U32 depth, GLenum textureTarget, GLenum format, GLenum internalFormat, GLenum type, GLenum filter,  GLenum wrap);
 
 
 	~Texture();
@@ -42,7 +42,8 @@ public:
 	U32 getDepth() const;
 
 protected:
-	friend class FileManager;
+	friend class MappedValues;
+	friend class ResourceManager;
 
 	static Texture* loadTexture(const string& saveData);
 

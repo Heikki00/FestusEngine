@@ -2,6 +2,11 @@
 #include <mutex>
 #include <atomic>
 
+namespace Json {
+class Value;
+};
+
+
 //A class that contains various functions for file IO
 class FileManager {
 public:
@@ -33,11 +38,13 @@ public:
 	//Does the file exist?
 	bool fileExists(const string& filename);
 
-	//Translates MappedValues to json
-	std::string toJson(const MappedValues* m);
+	//Translates Transform to json
+	Json::Value* toJson(const Transform* m);
 
-	//Constructs MappedValues from json
-	MappedValues* fromJson(const string& src);
+	//Constructs Transform from json
+	void fromJson(Json::Value& src, Transform* m);
+
+	Json::Value* parseJson(const string& src);
 
 private:
 

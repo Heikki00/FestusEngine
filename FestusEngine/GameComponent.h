@@ -1,12 +1,14 @@
 #pragma once
 
-
-
+//USES OF MACROS:
+//COMPONENTREGISTER(T): Top of the .cpp file
+//COMPONENTLOADCONSTRUCTOR(T): Public section of .h file
 #define GAMECOMPONENTH
 
-#define COMPONENTREGISTER(T) struct MacroComponentRegisteration##T{MacroComponentRegisteration##T(){ SaveManager::registerLoad(#T, ##T::_get_load_instance);}};MacroComponentRegisteration##T __staticMacrocomponent##T;
+#define COMPONENTREGISTER(T) struct MacroComponentRegisteration##T{MacroComponentRegisteration##T(){ SaveManager::registerLoad(#T, ##T::_get_loaded_instance);}};MacroComponentRegisteration##T __staticMacrocomponent##T;
 
-#define COMPONENTLOADCONSTRUCTOR(T) protected: friend class SaveManager; friend struct MacroComponentRegisteration##T; static GameComponent* _get_load_instance(){return reinterpret_cast<T*>(new U8[sizeof(T)]);}public:
+#define COMPONENTLOADCONSTRUCTOR(T) protected: friend class SaveManager; friend struct MacroComponentRegisteration##T; T(GameObject* parent, const MappedValues& map){setParent(parent); parent->addLoadedComponent(this); type = TypeID<T>::getType();load(map);} static GameComponent* _get_loaded_instance(GameObject* parent, const MappedValues& map){return new T(parent, map);}public:
+
 
 
 class ShaderStage;
